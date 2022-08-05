@@ -1,38 +1,37 @@
-import { useEffect, useState, useRef } from "react";
-export default function Input({label,type, ...props}) {
+import {useEffect, useRef, useState} from "react";
+import {useField} from "formik";
+import classNames from "classnames";
 
-  const inputRef = useRef();
-const [show, setShow] = useState(false);
-const [inputType, setInputType] = useState(type);
+export default function Input({label, type = 'text', ...props}) {
 
-useEffect(()=>{
-if (show) {
-  setInputType("text");
+	const [field, meta, helpers] = useField(props)
+	const [show, setShow] = useState(false)
+	const [inputType, setType] = useState(type)
 
-}else if (type === "password") {
-  setInputType("password")}
-  inputRef.current.focus();
-},[show])
+	useEffect(() => {
+		if (show) {
+			setType('text')
+		} else if (type === 'password') {
+			setType('password')
+		}
+	}, [show])
 
-
-
-  return (
-    <label className="relative flex  rounded-sm bg-zinc-50 px-2 text-sm border focus-within:border-gray-400 ">
-      <input
-        required={true}
-        type={inputType}
-        ref={inputRef}
-        className="bg-zinc-50 w-full h-[38px]  outline-none peer valid:10px valid:pt-3"
-        {...props}
-      />
-      <small className="absolute cursor-text pointer-events-none top-1/2 left-[9px] -translate-y-1/2 text-sx text-gray-500 transtion-all peer-valid:text-[9px] peer-valid:top-2.5">
-        {label}
-      </small>
-      {type === 'password' && props?.value && (
-        <button type="button" onClick={()=>setShow(show => !show)} className=" text-gray-500 flex items-center h-full text-sm font-semibold pl-1">
-          {show ? 'Hide' : 'Show'}
-        </button>
-      )}
-    </label>
-  );
+	return (
+		<label className="block relative flex bg-zinc-50 border rounded-sm focus-within:border-gray-400">
+			<input type={inputType} className={classNames({
+				"px-2 outline-none text-xs bg-transparent w-full h-[38px]": true,
+				"pt-[10px]": field.value
+			})} {...field} {...props}/>
+			<small className={classNames({
+				"absolute left-[9px] cursor-text pointer-events-none text-gray-400 -translate-y-1/2 transition-all": true,
+				"text-xs top-1/2": !field.value,
+				"text-[10px] top-2.5": field.value
+			})}>{label}</small>
+			{type === 'password' && field.value && (
+				<div onClick={() => setShow(show => !show)} className="h-full cursor-pointer select-none flex items-center text-sm font-semibold pr-2">
+					{show ? 'Hide' : 'Show'}
+				</div>
+			)}
+		</label>
+	)
 }
